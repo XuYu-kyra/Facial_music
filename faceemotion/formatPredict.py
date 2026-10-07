@@ -4,13 +4,17 @@ Website: zrawberry.com
 Filename: Preprocess.py
 """
 import os
+from pathlib import Path
 import cv2
 import numpy as np
 
 from .Network import *
 
 # print(os.getcwd()) # D:\CODE\FERmusicplayer
-CASC_PATH = './faceemotion/nnSource/haarcascade_files/haarcascade_frontalface_default.xml'
+MODULE_DIR = Path(__file__).resolve().parent
+PICTURE_DIR = MODULE_DIR / 'media' / 'pictures'
+PICTURE_DIR.mkdir(parents=True, exist_ok=True)
+CASC_PATH = str(MODULE_DIR / 'nnSource' / 'haarcascade_files' / 'haarcascade_frontalface_default.xml')
 cascade_classifier = cv2.CascadeClassifier(CASC_PATH)
 
 # 加载模型
@@ -65,10 +69,10 @@ def PIL_detect(image):
         [x, y, w, h] = face_coor
         cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
     face = Image.fromarray(img).convert('RGB')
-    face.save('C:/Users/xxuu/Desktop/FERmusicplayer/faceemotion/media/pictures/output.png', format='png')
+    face.save(PICTURE_DIR / 'output.png', format='png')
     if detected_face is not None:   # np
         # print(detected_face.shape) # numpy.ndarray  48,48  检测
-        cv2.imwrite('C:/Users/xxuu/Desktop/FERmusicplayer/faceemotion/media/pictures/detected_face.png', detected_face)
+        cv2.imwrite(str(PICTURE_DIR / 'detected_face.png'), detected_face)
         x_predict = image2numpy(detected_face)
         result = model.predict(x_predict)
         # print(result)
