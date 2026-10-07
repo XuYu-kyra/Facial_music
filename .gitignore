@@ -1,0 +1,8 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+db.sqlite3
+faceemotion/media/pictures/input.png
+faceemotion/media/pictures/output.png
+faceemotion/media/pictures/detected_face.png
