@@ -3,6 +3,7 @@ from io import BytesIO
 import os
 
 from django.shortcuts import render
+from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.views.generic import View
 from PIL import Image
@@ -18,7 +19,7 @@ def picture_ajax_upload(request):
         img_str = img.split(',')[1]     # 获取后方的图片内容  STR
         img_dec = base64.b64decode(img_str)     # base64解码
         # 保存图片
-        output_path = 'C:\\Users\\xxuu\\Desktop\\FERmusicplayer\\faceemotion\\media\\pictures\\input.png'
+        output_path = os.path.join(settings.BASE_DIR, 'faceemotion', 'media', 'pictures', 'input.png')
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, 'wb') as output:
             output.write(img_dec)
@@ -28,7 +29,7 @@ def picture_ajax_upload(request):
     else:
         print("上传")
         image = Image.open(request.FILES['image'])
-        output_path = 'C:\\Users\\xxuu\\Desktop\\FERmusicplayer\\faceemotion\\media\\pictures\\input.png'
+        output_path = os.path.join(settings.BASE_DIR, 'faceemotion', 'media', 'pictures', 'input.png')
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         image.save(output_path)
     # 识别表情 测试时候注释下方
