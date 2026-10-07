@@ -3,6 +3,7 @@ Author: LZF Zachary
 Website: zrawberry.com
 """
 import os
+from pathlib import Path
 
 import numpy as np
 import tensorflow as tf
@@ -15,7 +16,7 @@ from faceemotion.Utils import load_data
 
 # [0'愤怒', 1'恶心', 2'恐惧', 3'快乐', 4'悲伤', 5'惊讶', 6'平静'] -> [0'愤怒', 1'快乐', 2'悲伤', 3'惊讶', 4'平静']
 EMOTIONS = ['愤怒', '快乐', '悲伤', '惊讶', '平静']
-checkpoint_save_path = "./checkpoint/fermodel.ckpt"
+checkpoint_save_path = str(Path(__file__).resolve().parent / 'nnSource' / 'fermodel.ckpt')
 
 
 class FerModel(Model):
