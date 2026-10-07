@@ -1,24 +1,42 @@
-# Facial Expression Music Recommendation System
+# Facial Expression–Driven Music Player
 
 [English](#english) · [中文](#中文)
 
+**Tech stack:** Python · Django · TensorFlow/Keras · OpenCV · Pillow · SQLite · HTML/CSS/JavaScript · AJAX
+
 ## English
 
-This Django application turns a webcam frame or uploaded image into a lightweight emotion-aware music experience. It detects a face, classifies one of five emotion categories, and uses the result to select a playlist that can be played and managed in the browser.
+This Django prototype connects a facial-expression recogniser to a browser music player. A webcam frame or uploaded image is preprocessed, classified into one of five labels, and used to select playlists stored in the application database.
 
-### The story
+### Ownership and provenance
 
-The project started from a simple interaction question: can a user’s current visual state become a useful, immediate recommendation? I connected a complete path from computer vision to a web product instead of stopping at an offline classifier: capture → face crop → 48×48 grayscale preprocessing → neural inference → emotion-to-playlist lookup → playback.
+The facial-expression model is **not presented as my original CNN implementation**. The headers in `faceemotion/Network.py`, `faceemotion/Utils.py`, and `faceemotion/formatPredict.py` credit **LZF Zachary / zrawberry.com**. I adapted and integrated those FER components into the Django product flow.
 
-### What I built
+My work represented in this repository is the application layer around the recogniser: image upload/webcam handling, Django endpoints, emotion-to-playlist mapping, music and playlist data models, administration, browser pages, and the end-to-end interaction between recognition and playback.
 
-- A TensorFlow/Keras convolutional model with checkpoint-based training and inference for five classes: anger, happiness, sadness, surprise, and calm.
-- OpenCV Haar-cascade face detection, largest-face selection, grayscale normalisation, and fixed-size model input preparation.
-- Django views and AJAX endpoints that connect recognition results to `MusicList` and `Music` records.
-- Browser pages for the player, music lists, emotion detection, and Django Admin content management.
-- A train/evaluate path in `faceemotion/Network.py`, plus persisted checkpoints and the preprocessing logic in `faceemotion/formatPredict.py`.
+### Application flow
 
-### Quick start
+```text
+webcam frame or uploaded image
+  -> Haar-cascade face detection
+  -> largest-face crop -> 48x48 grayscale input
+  -> inherited TensorFlow/Keras FER checkpoint
+  -> one of five labels
+  -> Django playlist lookup -> browser playback
+```
+
+The five labels used by the application are anger, happiness, sadness, surprise, and calm.
+
+### Integration work
+
+- Connected webcam/base64 uploads and file uploads to a Django JSON endpoint.
+- Mapped recognition scores to application-level emotion identifiers.
+- Implemented `Music` and `MusicList` data flows, playlist selection, and media URLs.
+- Built player, playlist, and recognition pages plus Django Admin management.
+- Replaced developer-machine absolute paths with paths resolved from the repository, including cascades, checkpoints, and generated images.
+- Moved Django secret/debug/host settings to environment variables for portable local setup.
+
+### Run locally
 
 ```bash
 python -m venv .venv
@@ -29,41 +47,41 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Useful routes include `/player/`, `/musics-list/`, `/fermodel/`, and `/fermodel/recognize/`. Checkpoint and cascade paths are currently development-oriented; update them before moving the app to another machine.
+Useful routes include `/player/`, `/musics-list/`, `/fermodel/`, and `/fermodel/recognize/`. The repository includes a FER checkpoint under `faceemotion/nnSource/` and sample database/media content.
 
-### Limitations
+### Limits and attribution risk
 
-The model is a small educational prototype, not a validated affect-recognition system. Dataset bias, lighting, pose, and the five-class mapping all affect predictions. A production version would add a model card, calibrated confidence, consent and retention controls, portable paths, and offline evaluation before using predictions for anything consequential.
+This is an educational prototype, not a validated affect-recognition system. Dataset bias, lighting, pose, privacy, and the five-class mapping all affect predictions. No model card or held-out performance report is included.
+
+The original FER file headers identify an author and website, but the repository does not preserve a precise upstream source URL or licence for those files/checkpoint. That provenance should be confirmed before redistribution or commercial reuse. Until then, the defensible portfolio claim is adaptation and product integration—not authorship of the core FER model.
 
 ## 中文
 
-这是一个 Django 情绪感知音乐推荐应用：用户可以通过摄像头或上传图片进行人脸检测，模型把结果分类为五种情绪，再从数据库中的歌单里选择匹配内容并在网页播放器中播放。
+这是一个把人脸表情识别接入网页音乐播放器的 Django 原型。用户通过摄像头或上传图片提供输入，系统完成人脸检测和五分类预测，再从数据库中选择对应歌单并在浏览器播放。
 
-### 项目故事
+### 署名与工作边界
 
-我想验证一个很直观的交互链路：用户当下的视觉状态能不能转化为即时、可用的音乐推荐。项目没有停留在离线分类器，而是把 **采集 → 人脸裁剪 → 48×48 灰度预处理 → 神经网络推理 → 情绪歌单匹配 → 播放** 串成了一个可以操作的 Web 产品。
+`faceemotion/Network.py`、`faceemotion/Utils.py` 和 `faceemotion/formatPredict.py` 的文件头明确标注 **Author: LZF Zachary / zrawberry.com**，因此这个仓库不再把 CNN 核心实现描述成我的原创工作。我是在已有 FER 实现基础上做适配，并把它集成到 Django 产品流程中。
 
-### 我的工作
+我在仓库中的工作重点是应用层：摄像头/图片上传、Django 接口、情绪到歌单的映射、音乐与歌单数据模型、管理后台、页面，以及从识别结果到播放的完整交互。
 
-- 使用 TensorFlow/Keras 实现带 checkpoint 的卷积网络训练与推理，输出愤怒、快乐、悲伤、惊讶、平静五类；
-- 使用 OpenCV Haar cascade 检测人脸、选择最大人脸、灰度归一化并整理模型输入；
-- 编写 Django 视图和 AJAX 接口，把识别结果映射到 `MusicList` 与 `Music` 数据；
-- 完成播放器、歌单、情绪检测页面和 Django Admin 管理流程；
-- 将训练入口、checkpoint 加载和预处理逻辑分别组织在 `faceemotion/Network.py` 与 `faceemotion/formatPredict.py`。
+### 产品链路
 
-### 快速运行
+输入图片经过 Haar cascade 人脸检测、最大人脸裁剪和 48×48 灰度预处理，再交给已有 TensorFlow/Keras checkpoint；应用使用愤怒、快乐、悲伤、惊讶、平静五类结果查询歌单。
 
-```bash
-python -m venv .venv
-# Windows PowerShell
-.\.venv\Scripts\Activate.ps1
-pip install "Django==2.0.7" tensorflow opencv-python pillow numpy pandas matplotlib
-python manage.py migrate
-python manage.py runserver
-```
+### 集成内容
 
-可访问 `/player/`、`/musics-list/`、`/fermodel/` 和 `/fermodel/recognize/`。checkpoint 与 Haar 文件路径目前仍偏向开发机配置，迁移到新环境时需要调整。
+- 把摄像头 base64 输入和文件上传接入 Django JSON 接口；
+- 将识别分数映射为应用层情绪编号；
+- 实现 `Music`、`MusicList` 数据流程、歌单选择和媒体 URL；
+- 完成播放器、歌单、识别页面和 Django Admin；
+- 将 cascade、checkpoint 和生成图片路径改为基于仓库位置解析，移除开发机绝对路径；
+- 将 Django secret、debug 和 host 配置改为环境变量。
 
-### 诚实边界
+### 运行与边界
 
-这是教育/研究原型，不是经过验证的情绪识别系统；数据集偏差、光照、姿态和五分类映射都会影响结果。若继续产品化，应补充 model card、置信度校准、用户同意与数据留存策略、可移植路径和离线评测。
+按上面的命令安装依赖、迁移数据库并启动服务；常用路由包括 `/player/`、`/musics-list/`、`/fermodel/` 和 `/fermodel/recognize/`。
+
+这是教学原型，不是经过验证的情绪识别系统；数据偏差、光照、姿态、隐私和五分类设计都会影响结果，仓库也没有 model card 或留出集性能报告。
+
+当前文件头只提供作者和网站，没有保留精确的上游仓库地址或对应许可证，checkpoint 来源也需要进一步确认。因此用于求职时应准确表述为“适配并集成已有 FER 实现”，不能声称独立编写核心 CNN。
